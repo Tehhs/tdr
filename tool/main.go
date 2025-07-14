@@ -22,7 +22,7 @@ func DoContent(content []byte, fileName *string) (*Todo, error) {
 		return nil, errors.New("content is nil")
 	}
 
-	//todo unfuck this pls 
+	//todo unfuck this pls
 	//#TODO (NOW, IMPORTANT): todo unfuck this pls [#2w340857]
 	parser := tree_sitter.NewParser()
 	defer parser.Close()
@@ -43,9 +43,30 @@ func DoContent(content []byte, fileName *string) (*Todo, error) {
 
 	// fmt.Println(root.ToSexp())
 
+	/*
+		Here there are multiple lines 
+		so this might product something different 
+		then the other comments.
+	*/
+
+	/* 
+		[gh=#234asfas]
+		[ignore]
+
+		Todo: Ideally we can do something 
+			like this.
+		
+	*/
+
+	//Ideally we 
+	//can also do something 
+	//like this TODO
+	//TODO Please fix this 
+	//[#234ljn2] [imporant] [author=liam]
+
 	var evalTodo func(content string, line int) = func(content string, line int) {
 		// fmt.Println("Found todo", content)
-		fmt.Printf("%s, Line %d: %s", *fileName, line, content)
+		fmt.Printf("%s, Line %d: %s\n", *fileName, line, content)
 	}
 
 	var evalComment func(*tree_sitter.Node) = func(node *tree_sitter.Node) {
