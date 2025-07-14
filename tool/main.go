@@ -45,7 +45,7 @@ func DoContent(content []byte, fileName *string) (*Todo, error) {
 
 	var evalTodo func(content string, line int) = func(content string, line int) {
 		// fmt.Println("Found todo", content)
-		fmt.Printf("%s, Line %d: %s", *fileName, line, content)
+		fmt.Printf("%s, Line %d: %s\n", *fileName, line, content)
 	}
 
 	var evalComment func(*tree_sitter.Node) = func(node *tree_sitter.Node) {
