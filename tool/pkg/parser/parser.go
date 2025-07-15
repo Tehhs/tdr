@@ -13,6 +13,14 @@ type CommentBlock struct {
 	EndLine int 
 }
 
+func(b CommentBlock) String() string { 
+	var output string = ""
+	for _, l := range b.Lines { 
+		output += l + "\n"
+	}
+	return output 
+}
+
 type ParseResult struct {
 	Comments []CommentBlock
 }
