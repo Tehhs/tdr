@@ -37,25 +37,28 @@ func (p GoParser) Parse(content *string) (*ParseResult, error) {
 	var commentBlock *CommentBlock = nil
 	var lastLine int = -2
 	var evalTodo func(content string, line int) = func(content string, line int) {
-		
-		if line == lastLine+1  { 
-			commentBlock.Lines = append(commentBlock.Lines, content)
-			commentBlock.EndLine = line 
-			lastLine = line 
-			return 
-		}  
 
-		commentBlock = &CommentBlock{} 
+		if line == lastLine+1 {
+			commentBlock.Lines = append(commentBlock.Lines, Line{
+				Content:    content,
+				LineNumber: line+1,
+			})
+			commentBlock.EndLine = line+1
+			lastLine = line
+			return
+		}
+
+		commentBlock = &CommentBlock{}
 		parseResult.Comments = append(parseResult.Comments, commentBlock)
-		commentBlock.StartLine = line
-		commentBlock.Lines = append(commentBlock.Lines, content)
-		lastLine = line 
-		
-		
-		
+		commentBlock.StartLine = line+1
+		commentBlock.EndLine = line+1
+		commentBlock.Lines = append(commentBlock.Lines, Line{
+			Content:    content,
+			LineNumber: line+1,
+		})
+		lastLine = line
+
 	}
-
-
 
 	var evalComment func(*tree_sitter.Node) = func(node *tree_sitter.Node) {
 
@@ -75,7 +78,7 @@ func (p GoParser) Parse(content *string) (*ParseResult, error) {
 		line := node.EndPosition().Row
 
 		evalTodo(stringContent, int(line))
-		
+
 	}
 
 	var evalNode func(*tree_sitter.Node) = func(node *tree_sitter.Node) {

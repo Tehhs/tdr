@@ -33,7 +33,7 @@ func main() {
 
 	var DoFile func(string) = func(file string) {
 		if file[len(file)-2:] != "go" {
-			// log.Printf("Cannot do file '%s' as it is not a go file", file)
+			
 			return
 		}
 
@@ -62,7 +62,7 @@ func main() {
 
 	if !fileOrFolderInfo.IsDir() {
 		// log.Println("DOING FILE", *fileOrFolder)
-		// todo kill someone
+		// todo todo 
 		DoFile(*fileOrFolder)
 	} else {
 		filepath.Walk(*fileOrFolder, func(path string, info fs.FileInfo, err error) error {
@@ -79,13 +79,12 @@ func main() {
 	fmt.Printf("Got %d comment blocks\n", len(todoBlocks))
 
 	// log.Println("DOING FILE", *fileOrFolder)
-	// todo kill someone 22
-	// THIS IS NOT BEING PICKED UP WTF
+	// todo this is a test todo
 
 	for _, todoBlock := range todoBlocks {
-		fmt.Printf("\n%s: ", todoBlock.FileName)
+		fmt.Printf("\n%s(lines %d to %d):\n", todoBlock.FileName, todoBlock.CommentBlock.StartLine, todoBlock.CommentBlock.EndLine)
 		for _, line := range todoBlock.CommentBlock.Lines {
-			fmt.Printf("%s ", line)
+			fmt.Printf("\t%s\n", line)
 		}
 		fmt.Printf("\n")
 	}

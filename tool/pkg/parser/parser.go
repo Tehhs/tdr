@@ -5,20 +5,27 @@ import (
 	"log"
 )
 
-
-
-type CommentBlock struct { 
-	Lines []string
-	StartLine int
-	EndLine int 
+type Line struct {
+	Content    string
+	LineNumber int
 }
 
-func(b CommentBlock) String() string { 
+func (l Line) String() string {
+	return l.Content
+}
+
+type CommentBlock struct {
+	Lines     []Line
+	StartLine int
+	EndLine   int
+}
+
+func (b CommentBlock) String() string {
 	var output string = ""
-	for _, l := range b.Lines { 
-		output += l + "\n"
+	for _, l := range b.Lines {
+		output += l.String() + "\n"
 	}
-	return output 
+	return output
 }
 
 type ParseResult struct {
