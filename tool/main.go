@@ -1,20 +1,20 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/fs"
 	"log"
 	"os"
+	"parser"
 	"path/filepath"
 	"strings"
-
-	tree_sitter "github.com/tree-sitter/go-tree-sitter"
-	tree_sitter_go "github.com/tree-sitter/tree-sitter-go/bindings/go"
 )
 
-type Todo struct {
+
+type TodoBlock struct {
+	CommentBlock *parser.CommentBlock
+	FileName     string
 }
 
 func DoContent(content []byte, fileName *string) (*Todo, error) {
@@ -110,6 +110,7 @@ func DoContent(content []byte, fileName *string) (*Todo, error) {
 	}
 
 	return nil, nil
+
 }
 
 func main() {
@@ -125,9 +126,11 @@ func main() {
 		log.Panicf("File or folder '%s' is not a file or folder.\n", *fileOrFolder)
 	}
 
+	var todoBlocks []TodoBlock = []TodoBlock{}
+
 	var DoFile func(string) = func(file string) {
 		if file[len(file)-2:] != "go" {
-			// log.Printf("Cannot do file '%s' as it is not a go file", file)
+			
 			return
 		}
 
@@ -135,16 +138,33 @@ func main() {
 		if err != nil {
 			log.Panicf("File '%s' could not be read.", file)
 		}
-		DoContent(content, &file)
+		//todo yes please
+		//haha
+		parseResult, err := parser.Parse(Ptr(string(content)), "go")
+
+		if err != nil {
+			log.Panic("Error parsing")
+		}
+
+		for _, commentBlock := range parseResult.Comments {
+			hasTodo := strings.Contains(strings.ToLower(commentBlock.String()), "todo")
+			if hasTodo {
+				todoBlocks = append(todoBlocks, TodoBlock{
+					CommentBlock: commentBlock,
+					FileName:     file,
+				})
+			}
+		}
 	}
 
 	if !fileOrFolderInfo.IsDir() {
 		// log.Println("DOING FILE", *fileOrFolder)
+		// todo todo 
 		DoFile(*fileOrFolder)
 	} else {
 		filepath.Walk(*fileOrFolder, func(path string, info fs.FileInfo, err error) error {
 
-			// log.Println("DOING FILE", path)
+			// log.Println("DOING FILE", path) todo
 			if info.IsDir() {
 				return nil
 			}
@@ -153,8 +173,21 @@ func main() {
 		})
 	}
 
-	fmt.Println()
+	fmt.Printf("Got %d comment blocks\n", len(todoBlocks))
 
+	// log.Println("DOING FILE", *fileOrFolder)
+	// todo this is a test todo
+
+	for _, todoBlock := range todoBlocks {
+		fmt.Printf("\n%s(lines %d to %d):\n", todoBlock.FileName, todoBlock.CommentBlock.StartLine, todoBlock.CommentBlock.EndLine)
+		for _, line := range todoBlock.CommentBlock.Lines {
+			fmt.Printf("\t%s\n", line)
+		}
+		fmt.Printf("\n")
+	}
+
+
+	//test todo
 }
 
 func Ptr[T any](v T) *T {
