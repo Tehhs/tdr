@@ -53,7 +53,7 @@ func main() {
 			hasTodo := strings.Contains(strings.ToLower(commentBlock.String()), "todo")
 			if hasTodo {
 				todoBlocks = append(todoBlocks, TodoBlock{
-					CommentBlock: &commentBlock,
+					CommentBlock: commentBlock,
 					FileName:     file,
 				})
 			}
@@ -67,7 +67,7 @@ func main() {
 	} else {
 		filepath.Walk(*fileOrFolder, func(path string, info fs.FileInfo, err error) error {
 
-			// log.Println("DOING FILE", path)
+			// log.Println("DOING FILE", path) todo
 			if info.IsDir() {
 				return nil
 			}
@@ -90,6 +90,8 @@ func main() {
 		fmt.Printf("\n")
 	}
 
+
+	//test todo
 }
 
 func Ptr[T any](v T) *T {

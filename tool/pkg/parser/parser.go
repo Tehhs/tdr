@@ -22,7 +22,7 @@ func(b CommentBlock) String() string {
 }
 
 type ParseResult struct {
-	Comments []CommentBlock
+	Comments []*CommentBlock
 }
 
 type Parser interface {

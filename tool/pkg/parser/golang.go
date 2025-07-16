@@ -37,19 +37,22 @@ func (p GoParser) Parse(content *string) (*ParseResult, error) {
 	var commentBlock *CommentBlock = nil
 	var lastLine int = -2
 	var evalTodo func(content string, line int) = func(content string, line int) {
+		
 		if line == lastLine+1  { 
 			commentBlock.Lines = append(commentBlock.Lines, content)
 			commentBlock.EndLine = line 
 			lastLine = line 
 			return 
-		}
-		if commentBlock != nil { 
-			parseResult.Comments = append(parseResult.Comments, *commentBlock)
-		}
+		}  
+
 		commentBlock = &CommentBlock{} 
+		parseResult.Comments = append(parseResult.Comments, commentBlock)
 		commentBlock.StartLine = line
 		commentBlock.Lines = append(commentBlock.Lines, content)
 		lastLine = line 
+		
+		
+		
 	}
 
 
