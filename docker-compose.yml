@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  antlr4:
+    build:
+      context: ./docker
+      dockerfile: antlr4.Dockerfile
+    ports:
+      - "8080:80"
+    working_dir: /opt/data  
+    volumes:
+      - .:/opt/app:rw
+      - antlr4_data:/opt/data 
+  
+volumes:
+  antlr4_data: 
