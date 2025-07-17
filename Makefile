@@ -10,4 +10,4 @@ build:
 .PHONY: generate
 generate:
 	@echo "Generating parser..."
-	$(ANTLR) 
+	$(ANTLR) tool/antlr/grammar/tdrl.g4
