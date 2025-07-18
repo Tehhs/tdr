@@ -1,3 +1,5 @@
+grammar tdrl;
+
 todoComment
     : HASH? TODO tagBlock? COLON message
     ;

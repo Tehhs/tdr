@@ -1,4 +1,4 @@
-package parser
+package comments
 
 import (
 	"errors"

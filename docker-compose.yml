@@ -7,7 +7,7 @@ services:
       dockerfile: antlr4.Dockerfile
     ports:
       - "8080:80"
-    working_dir: /opt/data  
+    working_dir: /opt/app  
     volumes:
       - .:/opt/app:rw
       - antlr4_data:/opt/data 

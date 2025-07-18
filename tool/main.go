@@ -6,13 +6,13 @@ import (
 	"io/fs"
 	"log"
 	"os"
-	"parser"
+	"comments"
 	"path/filepath"
 	"strings"
 )
 
 type TodoBlock struct {
-	CommentBlock *parser.CommentBlock
+	CommentBlock *comments.CommentBlock
 	FileName     string
 }
 
@@ -43,7 +43,7 @@ func main() {
 		}
 		//todo yes please
 		//haha
-		parseResult, err := parser.Parse(Ptr(string(content)), "go")
+		parseResult, err := comments.Parse(Ptr(string(content)), "go")
 
 		if err != nil {
 			log.Panic("Error parsing")

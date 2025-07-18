@@ -10,4 +10,7 @@ build:
 .PHONY: generate
 generate:
 	@echo "Generating parser..."
-	$(ANTLR) tool/antlr/grammar/tdrl.g4
+	$(ANTLR) -Dlanguage=Go -Xexact-output-dir \
+		-o tool/pkg/tdrl \
+		-package tdrl \
+		tool/pkg/tdrl/grammar/tdrl.g4 

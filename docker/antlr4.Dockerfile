@@ -30,17 +30,16 @@ RUN apt-get update && \
 # Download and install GO
 
 
-RUN echo "export PATH=\$PATH:/usr/local/go/bin" >> ~/.bashrc
 
-RUN curl -o go.tar.gz \
-    https://dl.google.com/go/go1.24.5.linux-amd64.tar.gz 
+# Download and install GO
+# RUN curl -o go.tar.gz \
+#     https://dl.google.com/go/go1.24.5.linux-amd64.tar.gz 
 
-RUN mkdir -p /usr/local/go/bin
+# RUN tar -xzf go.tar.gz -C /usr/local
 
-RUN tar -xzf go.tar.gz -C /usr/local
+# # Set Go binary in PATH for all subsequent steps
+# ENV PATH="/usr/local/go/bin:${PATH}"
 
-RUN bash -c "source ~/.bashrc"
+# # ANTLR Go runtime
 
-# ANTLR Go runtime
-
-RUN bash -c "go install github.com/antlr/antlr4/runtime/Go/antlr"
+# RUN bash -c "go install github.com/antlr/antlr4/runtime/Go/antlr" 
