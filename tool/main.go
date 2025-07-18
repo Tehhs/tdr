@@ -1,14 +1,19 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"io/fs"
-	"log"
-	"os"
+	// "flag"
+	// "fmt"
+	// "io/fs"
+	// "log"
+	// "os"
 	"comments"
-	"path/filepath"
-	"strings"
+	"log"
+
+	// "path/filepath"
+	// "strings"
+	"tdrl"
+
+	antlr_v4 "github.com/antlr4-go/antlr/v4"
 )
 
 type TodoBlock struct {
@@ -16,79 +21,104 @@ type TodoBlock struct {
 	FileName     string
 }
 
+// Custom listener to print parsed todo comment details
+type PrintTodoListener struct {
+	antlr_v4.BaseParseTreeListener
+}
+
+// EnterTodoComment is called when entering the todoComment rule
+func (l *PrintTodoListener) EnterTodoComment(ctx *tdrl.TodoContext) {
+	log.Println("Parsed a todo comment:")
+	log.Println(ctx.GetText())
+}
+
 func main() {
-	fmt.Println()
+	// Example input that matches your grammar
+	input := "todo:dsdfga"
 
-	fileOrFolder := flag.String("f", ".", "File or folder")
-	if fileOrFolder == nil {
-		log.Panic("Missing file or folder. Use -f to specify file or folder")
-	}
+	charStream := antlr_v4.NewInputStream(input)
+	lexer := tdrl.NewtdrlLexer(charStream)
+	tokens := antlr_v4.NewCommonTokenStream(lexer, antlr_v4.TokenDefaultChannel)
+	parser := tdrl.NewtdrlParser(tokens)
 
-	fileOrFolderInfo, err := os.Stat(*fileOrFolder)
-	if err != nil {
-		log.Panicf("File or folder '%s' is not a file or folder.\n", *fileOrFolder)
-	}
+	tree := parser.Todo()
 
-	var todoBlocks []TodoBlock = []TodoBlock{}
+	listener := &PrintTodoListener{}
+	antlr_v4.ParseTreeWalkerDefault.Walk(listener, tree)
 
-	var DoFile func(string) = func(file string) {
-		if file[len(file)-2:] != "go" {
-			
-			return
-		}
+	return
 
-		content, err := os.ReadFile(file)
-		if err != nil {
-			log.Panicf("File '%s' could not be read.", file)
-		}
-		//todo yes please
-		//haha
-		parseResult, err := comments.Parse(Ptr(string(content)), "go")
+	// ...existing code...
 
-		if err != nil {
-			log.Panic("Error parsing")
-		}
+	// fileOrFolder := flag.String("f", ".", "File or folder")
+	// if fileOrFolder == nil {
+	// 	log.Panic("Missing file or folder. Use -f to specify file or folder")
+	// }
 
-		for _, commentBlock := range parseResult.Comments {
-			hasTodo := strings.Contains(strings.ToLower(commentBlock.String()), "todo")
-			if hasTodo {
-				todoBlocks = append(todoBlocks, TodoBlock{
-					CommentBlock: commentBlock,
-					FileName:     file,
-				})
-			}
-		}
-	}
+	// fileOrFolderInfo, err := os.Stat(*fileOrFolder)
+	// if err != nil {
+	// 	log.Panicf("File or folder '%s' is not a file or folder.\n", *fileOrFolder)
+	// }
 
-	if !fileOrFolderInfo.IsDir() {
-		// log.Println("DOING FILE", *fileOrFolder)
-		// todo todo 
-		DoFile(*fileOrFolder)
-	} else {
-		filepath.Walk(*fileOrFolder, func(path string, info fs.FileInfo, err error) error {
+	// var todoBlocks []TodoBlock = []TodoBlock{}
 
-			// log.Println("DOING FILE", path) todo
-			if info.IsDir() {
-				return nil
-			}
-			DoFile(path)
-			return nil
-		})
-	}
+	// var DoFile func(string) = func(file string) {
+	// 	if file[len(file)-2:] != "go" {
 
-	fmt.Printf("Got %d comment blocks\n", len(todoBlocks))
+	// 		return
+	// 	}
 
-	// log.Println("DOING FILE", *fileOrFolder)
-	// todo this is a test todo
+	// 	content, err := os.ReadFile(file)
+	// 	if err != nil {
+	// 		log.Panicf("File '%s' could not be read.", file)
+	// 	}
+	// 	//todo yes please
+	// 	//haha
+	// 	parseResult, err := comments.Parse(Ptr(string(content)), "go")
 
-	for _, todoBlock := range todoBlocks {
-		fmt.Printf("\n%s(lines %d to %d):\n", todoBlock.FileName, todoBlock.CommentBlock.StartLine, todoBlock.CommentBlock.EndLine)
-		for _, line := range todoBlock.CommentBlock.Lines {
-			fmt.Printf("\t%s\n", line)
-		}
-		fmt.Printf("\n")
-	}
+	// 	if err != nil {
+	// 		log.Panic("Error parsing")
+	// 	}
 
+	// 	for _, commentBlock := range parseResult.Comments {
+	// 		hasTodo := strings.Contains(strings.ToLower(commentBlock.String()), "todo")
+	// 		if hasTodo {
+	// 			todoBlocks = append(todoBlocks, TodoBlock{
+	// 				CommentBlock: commentBlock,
+	// 				FileName:     file,
+	// 			})
+	// 		}
+	// 	}
+	// }
+
+	// if !fileOrFolderInfo.IsDir() {
+	// 	// log.Println("DOING FILE", *fileOrFolder)
+	// 	// todo todo
+	// 	DoFile(*fileOrFolder)
+	// } else {
+	// 	filepath.Walk(*fileOrFolder, func(path string, info fs.FileInfo, err error) error {
+
+	// 		// log.Println("DOING FILE", path) todo
+	// 		if info.IsDir() {
+	// 			return nil
+	// 		}
+	// 		DoFile(path)
+	// 		return nil
+	// 	})
+	// }
+
+	// fmt.Printf("Got %d comment blocks\n", len(todoBlocks))
+
+	// // log.Println("DOING FILE", *fileOrFolder)
+	// // todo this is a test todo
+
+	// for _, todoBlock := range todoBlocks {
+	// 	fmt.Printf("\n%s(lines %d to %d):\n", todoBlock.FileName, todoBlock.CommentBlock.StartLine, todoBlock.CommentBlock.EndLine)
+	// 	for _, line := range todoBlock.CommentBlock.Lines {
+	// 		fmt.Printf("\t%s\n", line)
+	// 	}
+	// 	fmt.Printf("\n")
+	// }
 
 	//test todo
 }

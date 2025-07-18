@@ -1,29 +1,14 @@
 grammar tdrl;
 
-todoComment
-    : HASH? TODO tagBlock? COLON message
-    ;
-
-tagBlock
-    : LPAREN tag (COMMA tag)* RPAREN
-    ;
-
-tag
-    : IDENTIFIER (EQUALS IDENTIFIER)?
-    ;
+todo: TODO COLON message EOF;
 
 message
-    : TEXT_LINE+ // can handle multi-line messages
+    : ~NL* // match any token other than a line break zero or more times
     ;
 
-// Tokens
-HASH        : '#' ;
-TODO        : 'todo' ;
-LPAREN      : '(' ;
-RPAREN      : ')' ;
-COMMA       : ',' ;
-COLON       : ':' ;
-EQUALS      : '=' ;
-IDENTIFIER  : [a-zA-Z_][a-zA-Z0-9_-]* ;
-TEXT_LINE   : ~[\r\n]+ -> skip ;
-NEWLINE     : [\r\n]+ ;
+
+
+TODO: 'todo' ;
+COLON: ':' ;
+WS: [ \t\r\n]+ -> skip ;
+NL      : '\r'? '\n' | '\r';
