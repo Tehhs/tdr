@@ -8,4 +8,4 @@ WIP. Only works for go code right now.
 
 # Building 
 
-Run `make build` to build. Should go in `dist/` folder.
+First, you'll need to have docker, docker compose, and make installed. Then you should be able to run `make build` to build. Should go in `dist/` folder.
