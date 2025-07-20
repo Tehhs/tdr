@@ -188,6 +188,8 @@ func main() {
 		//it should handle that 
 	}
 
+	fmt.Print("\n")
+
 }
 
 func Ptr[T any](v T) *T {
