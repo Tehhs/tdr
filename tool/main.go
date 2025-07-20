@@ -13,6 +13,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	// "path/filepath"
@@ -37,7 +38,6 @@ func (s *TodoListener) EnterTodoRule(ctx *tdrl.TodoRuleContext) {
 	if ctx.TagRule() != nil && ctx.TagRule().TagList().GetChildCount() != 0 {
 		amountOfTags = (ctx.TagRule().TagList().GetChildCount() + 1) / 2
 	}
-
 
 	tags := []string{}
 	for i := range amountOfTags {
@@ -65,6 +65,15 @@ type ProcessedTag struct {
 type ProcessedTodo struct {
 	Tags             []string
 	ProcessedContent string
+}
+
+func (t ProcessedTodo) HasTag(checkTag string) bool {
+	for _, tag := range t.Tags {
+		if strings.ToLower(tag) == strings.ToLower(checkTag) {
+			return true
+		}
+	}
+	return false
 }
 
 func ProcessTodo(content string) []ProcessedTodo {
@@ -101,6 +110,8 @@ func main() {
 	}
 
 	filterTag := flag.String("t", "", "Tag")
+
+	listTag := flag.Bool("l", false, "List all tags")
 
 	flag.Parse()
 
@@ -153,10 +164,10 @@ func main() {
 		})
 	}
 
-
 	// log.Println("DOING FILE", *fileOrFolder)
 	// todo this is a test todo
 
+	listedTags := []string{}
 	for _, todoBlock := range todoBlocks {
 
 		todoLines := []string{}
@@ -168,25 +179,44 @@ func main() {
 		todoContent = strings.ToLower(todoContent)
 
 		processedTodos := ProcessTodo(todoContent)
-		if len(processedTodos) != 0 {
-			for _, tag := range processedTodos[0].Tags {
-				if strings.Contains(strings.ToLower(tag), strings.ToLower(*filterTag)) { 
-					fmt.Printf("\n%s(lines %d to %d):\n", todoBlock.FileName, todoBlock.CommentBlock.StartLine, todoBlock.CommentBlock.EndLine)
-					fmt.Printf("\t%v -> %s", processedTodos[0].Tags, processedTodos[0].ProcessedContent)
-					break; 
+
+		//i know this is a code smell and a half will refactor later :P
+		if *listTag {
+			for _, todo := range processedTodos {
+				for _, tag := range todo.Tags {
+					if slices.Contains(listedTags, strings.TrimSpace(tag)) {
+						continue
+					}
+					listedTags = append(listedTags, strings.TrimSpace(tag))
 				}
 			}
-			
+		} else if len(processedTodos) != 0 {
+			for _, tag := range processedTodos[0].Tags {
+				if strings.Contains(strings.ToLower(tag), strings.ToLower(*filterTag)) {
+					fmt.Printf("\n%s(lines %d to %d):\n", todoBlock.FileName, todoBlock.CommentBlock.StartLine, todoBlock.CommentBlock.EndLine)
+					fmt.Printf("\t%v -> %s", processedTodos[0].Tags, processedTodos[0].ProcessedContent)
+					break
+				}
+			}
+
 		}
 
 		//todo(very_important): test this thing
 
-		//todo(important): another test 
+		//todo(important): another test
 
-		//todo(easy,ez): this should be easy and 
+		//todo(easy,ez): this should be easy and
 		//when this breaks into multiple lines
-		//it should handle that 
+		//it should handle that
 	}
+
+	if *listTag { 
+		fmt.Print("List of all todo tags:\n\n")
+		for _, tag := range listedTags { 
+			fmt.Println(tag)
+		}
+	}
+
 
 	fmt.Print("\n")
 
