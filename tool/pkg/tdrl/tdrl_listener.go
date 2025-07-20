@@ -8,15 +8,33 @@ import "github.com/antlr4-go/antlr/v4"
 type tdrlListener interface {
 	antlr.ParseTreeListener
 
-	// EnterTodo is called when entering the todo production.
-	EnterTodo(c *TodoContext)
+	// EnterMain is called when entering the main production.
+	EnterMain(c *MainContext)
 
-	// EnterMessage is called when entering the message production.
-	EnterMessage(c *MessageContext)
+	// EnterTodoRule is called when entering the todoRule production.
+	EnterTodoRule(c *TodoRuleContext)
 
-	// ExitTodo is called when exiting the todo production.
-	ExitTodo(c *TodoContext)
+	// EnterTagRule is called when entering the tagRule production.
+	EnterTagRule(c *TagRuleContext)
 
-	// ExitMessage is called when exiting the message production.
-	ExitMessage(c *MessageContext)
+	// EnterMessageContent is called when entering the messageContent production.
+	EnterMessageContent(c *MessageContentContext)
+
+	// EnterTagList is called when entering the tagList production.
+	EnterTagList(c *TagListContext)
+
+	// ExitMain is called when exiting the main production.
+	ExitMain(c *MainContext)
+
+	// ExitTodoRule is called when exiting the todoRule production.
+	ExitTodoRule(c *TodoRuleContext)
+
+	// ExitTagRule is called when exiting the tagRule production.
+	ExitTagRule(c *TagRuleContext)
+
+	// ExitMessageContent is called when exiting the messageContent production.
+	ExitMessageContent(c *MessageContentContext)
+
+	// ExitTagList is called when exiting the tagList production.
+	ExitTagList(c *TagListContext)
 }

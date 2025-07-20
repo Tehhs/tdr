@@ -1,14 +1,19 @@
 grammar tdrl;
 
-todo: TODO COLON message EOF;
-
-message
-    : ~NL* // match any token other than a line break zero or more times
-    ;
-
-
+main: todoRule? ;
+todoRule: TODO tagRule? COLON messageContent;
+tagRule: LPARAN tagList RPARAN; 
+messageContent: (WS | .)+?;
+tagList: TAG_ID (',' TAG_ID)* ;
 
 TODO: 'todo' ;
+TAG_ID: [0-9a-zA-Z_]+ ;
+COMMA: ',' ;
+LPARAN: '(' ;
+RPARAN: ')' ;
 COLON: ':' ;
-WS: [ \t\r\n]+ -> skip ;
-NL      : '\r'? '\n' | '\r';
+
+WS : [ \t\r\n]+ -> channel(HIDDEN) ;
+
+//todo(tag):back to school we go
+

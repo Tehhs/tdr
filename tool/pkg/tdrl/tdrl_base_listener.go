@@ -20,14 +20,32 @@ func (s *BasetdrlListener) EnterEveryRule(ctx antlr.ParserRuleContext) {}
 // ExitEveryRule is called when any rule is exited.
 func (s *BasetdrlListener) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 
-// EnterTodo is called when production todo is entered.
-func (s *BasetdrlListener) EnterTodo(ctx *TodoContext) {}
+// EnterMain is called when production main is entered.
+func (s *BasetdrlListener) EnterMain(ctx *MainContext) {}
 
-// ExitTodo is called when production todo is exited.
-func (s *BasetdrlListener) ExitTodo(ctx *TodoContext) {}
+// ExitMain is called when production main is exited.
+func (s *BasetdrlListener) ExitMain(ctx *MainContext) {}
 
-// EnterMessage is called when production message is entered.
-func (s *BasetdrlListener) EnterMessage(ctx *MessageContext) {}
+// EnterTodoRule is called when production todoRule is entered.
+func (s *BasetdrlListener) EnterTodoRule(ctx *TodoRuleContext) {}
 
-// ExitMessage is called when production message is exited.
-func (s *BasetdrlListener) ExitMessage(ctx *MessageContext) {}
+// ExitTodoRule is called when production todoRule is exited.
+func (s *BasetdrlListener) ExitTodoRule(ctx *TodoRuleContext) {}
+
+// EnterTagRule is called when production tagRule is entered.
+func (s *BasetdrlListener) EnterTagRule(ctx *TagRuleContext) {}
+
+// ExitTagRule is called when production tagRule is exited.
+func (s *BasetdrlListener) ExitTagRule(ctx *TagRuleContext) {}
+
+// EnterMessageContent is called when production messageContent is entered.
+func (s *BasetdrlListener) EnterMessageContent(ctx *MessageContentContext) {}
+
+// ExitMessageContent is called when production messageContent is exited.
+func (s *BasetdrlListener) ExitMessageContent(ctx *MessageContentContext) {}
+
+// EnterTagList is called when production tagList is entered.
+func (s *BasetdrlListener) EnterTagList(ctx *TagListContext) {}
+
+// ExitTagList is called when production tagList is exited.
+func (s *BasetdrlListener) ExitTagList(ctx *TagListContext) {}
