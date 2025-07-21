@@ -30,6 +30,7 @@ And then query your tags by doing something like `tdr -t security` or `tdr -t im
 # Building 
 
 ## Prerequisites
+* Golang 1.23 (To be dockersized and removed as a requirement)
 * docker
 * docker compose
 * make installed
