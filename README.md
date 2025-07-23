@@ -1,6 +1,12 @@
 # Todor
 
-Query your todos in your code.
+Query your TODOs in your code 
+
+# Features
+
+* Query your TODOs in your code
+* Provides a small "TODO" syntax/language for use in your code.
+* Output in JSON for connections to other tools and workflows (WIP) 
 
 
 ## Syntax 
