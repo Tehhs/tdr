@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"util"
 
 	// "path/filepath"
 	// "strings"
@@ -102,73 +103,86 @@ func ProcessTodo(content string) []ProcessedTodo {
 	return processedTodos
 }
 
-func main() {
+type ProcessArguments struct {
+	List      *bool
+	TagFilter *string
+	Path      *string
+}
 
-	fileOrFolder := flag.String("f", ".", "File or folder")
-	if fileOrFolder == nil {
-		log.Panic("Missing file or folder. Use -f to specify file or folder")
+func ParseArguments() ProcessArguments {
+	var processArguments ProcessArguments = ProcessArguments{
+		List:      flag.Bool("l", false, "List all tags"),
+		TagFilter: flag.String("t", "", "Tag"),
+		Path:      flag.String("f", ".", "File or folder"),
 	}
-
-	filterTag := flag.String("t", "", "Tag")
-
-	listTag := flag.Bool("l", false, "List all tags")
 
 	flag.Parse()
 
-	fileOrFolderInfo, err := os.Stat(*fileOrFolder)
+	return processArguments
+}
+
+func ProcessFile(path string) []TodoBlock {
+
+	var todoCommentBlocks []TodoBlock = []TodoBlock{}
+
+	var extension *string = nil
+	filePathParts := strings.Split(path, ".")
+	extension = util.Ptr(filePathParts[len(filePathParts)-1])
+
+	content, err := os.ReadFile(path)
 	if err != nil {
-		log.Panicf("File or folder '%s' is not a file or folder.\n", *fileOrFolder)
+		log.Panicf("File '%s' could not be read.", path)
 	}
 
-	var todoBlocks []TodoBlock = []TodoBlock{}
+	parseResult, err := comments.Parse(Ptr(string(content)), *extension)
 
-	var DoFile func(string) = func(file string) {
-		if file[len(file)-2:] != "go" {
+	if err != nil {
+		log.Panic("Error parsing")
+	}
 
-			return
-		}
-
-		content, err := os.ReadFile(file)
-		if err != nil {
-			log.Panicf("File '%s' could not be read.", file)
-		}
-		//todo yes please
-		//haha
-		parseResult, err := comments.Parse(Ptr(string(content)), "go")
-
-		if err != nil {
-			log.Panic("Error parsing")
-		}
-
-		for _, commentBlock := range parseResult.Comments {
-			hasTodo := strings.Contains(strings.ToLower(commentBlock.String()), "todo")
-			if hasTodo {
-				todoBlocks = append(todoBlocks, TodoBlock{
-					CommentBlock: commentBlock,
-					FileName:     file,
-				})
-			}
+	for _, commentBlock := range parseResult.Comments {
+		hasTodo := strings.Contains(strings.ToLower(commentBlock.String()), "todo")
+		if hasTodo {
+			todoCommentBlocks = append(todoCommentBlocks, TodoBlock{
+				CommentBlock: commentBlock,
+				FileName:     path,
+			})
 		}
 	}
+
+	return todoCommentBlocks
+
+}
+
+func main() {
+
+	args := ParseArguments()
+
+	fileOrFolderInfo, err := os.Stat(*args.Path)
+	if err != nil {
+		log.Panicf("File or folder '%s' is not a file or folder.\n", *args.Path)
+	}
+
+	var todoCommentBlocks []TodoBlock = []TodoBlock{}
 
 	if !fileOrFolderInfo.IsDir() {
-		DoFile(*fileOrFolder)
+		newBlocks := ProcessFile(*args.Path)
+		todoCommentBlocks = append(todoCommentBlocks, newBlocks...)
 	} else {
-		filepath.Walk(*fileOrFolder, func(path string, info fs.FileInfo, err error) error {
+		filepath.Walk(*args.Path, func(path string, info fs.FileInfo, err error) error {
 
 			if info.IsDir() {
 				return nil
 			}
-			DoFile(path)
+			newBlocks := ProcessFile(path)
+			todoCommentBlocks = append(todoCommentBlocks, newBlocks...)
+
 			return nil
 		})
 	}
 
-	// log.Println("DOING FILE", *fileOrFolder)
-	// todo this is a test todo
-
 	listedTags := []string{}
-	for _, todoBlock := range todoBlocks {
+	for _, todoBlock := range todoCommentBlocks {
 
 		todoLines := []string{}
 		for _, line := range todoBlock.CommentBlock.Lines {
@@ -181,7 +195,7 @@ func main() {
 		processedTodos := ProcessTodo(todoContent)
 
 		//i know this is a code smell and a half will refactor later :P
-		if *listTag {
+		if *args.List {
 			for _, todo := range processedTodos {
 				for _, tag := range todo.Tags {
 					if slices.Contains(listedTags, strings.TrimSpace(tag)) {
@@ -192,7 +206,7 @@ func main() {
 			}
 		} else if len(processedTodos) != 0 {
 			for _, tag := range processedTodos[0].Tags {
-				if strings.Contains(strings.ToLower(tag), strings.ToLower(*filterTag)) {
+				if strings.Contains(strings.ToLower(tag), strings.ToLower(*args.TagFilter)) {
 					fmt.Printf("\n%s(lines %d to %d):\n", todoBlock.FileName, todoBlock.CommentBlock.StartLine, todoBlock.CommentBlock.EndLine)
 					fmt.Printf("\t%v -> %s", processedTodos[0].Tags, processedTodos[0].ProcessedContent)
 					break
@@ -210,13 +224,12 @@ func main() {
 		//it should handle that
 	}
 
-	if *listTag { 
+	if *args.List {
 		fmt.Print("List of all todo tags:\n\n")
-		for _, tag := range listedTags { 
+		for _, tag := range listedTags {
 			fmt.Println(tag)
 		}
 	}
-
 
 	fmt.Print("\n")
 
