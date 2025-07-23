@@ -9,7 +9,7 @@ Query your TODOs in your code
 * Output in JSON for connections to other tools and workflows (WIP) 
 
 
-## Syntax 
+# Syntax 
 
 Todor supports the typical todo syntax: 
 ```
@@ -28,14 +28,14 @@ You can add tags to your todos like so:
 
 And then query your tags by doing something like `tdr -t security` or `tdr -t important`.
 
-## Supporpted Lanauges 
+# Supporpted Lanauges 
 * Golang
 * (WIP) Javascript & JSX
 * (WIP) Typescript & TSX
 
 # Building 
 
-## Prerequisites
+### Prerequisites
 * Golang 1.23 (To be dockersized and removed as a requirement)
 * docker
 * docker compose
