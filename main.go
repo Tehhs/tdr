@@ -6,7 +6,7 @@ import (
 	// "io/fs"
 	// "log"
 	// "os"
-	"comments"
+	"tdr/pkg/comments"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -15,11 +15,11 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
-	"util"
+	"tdr/pkg/util"
 
 	// "path/filepath"
 	// "strings"
-	"tdrl"
+	"tdr/pkg/tdrl"
 
 	antlr_v4 "github.com/antlr4-go/antlr/v4"
 )
@@ -156,6 +156,10 @@ func ProcessFile(path string) []TodoBlock {
 
 func main() {
 
+	log.Println("test")
+
+	return 
+	
 	args := ParseArguments()
 
 	fileOrFolderInfo, err := os.Stat(*args.Path)
