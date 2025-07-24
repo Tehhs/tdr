@@ -1,6 +1,10 @@
 # Todor
 
-Query your TODOs in your code 
+Query your TODOs in your code.
+
+Install using `go install github.com/Tehhs/tdr@latest`
+
+
 
 # Features
 
