@@ -1,4 +1,4 @@
-module tdr
+module github.com/Tehhs/tdr
 
 go 1.23
 

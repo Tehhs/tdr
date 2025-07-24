@@ -6,7 +6,6 @@ import (
 	// "io/fs"
 	// "log"
 	// "os"
-	"tdr/pkg/comments"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -15,11 +14,13 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
-	"tdr/pkg/util"
+
+	"github.com/Tehhs/tdr/pkg/comments"
+	"github.com/Tehhs/tdr/pkg/util"
 
 	// "path/filepath"
 	// "strings"
-	"tdr/pkg/tdrl"
+	"github.com/Tehhs/tdr/pkg/tdrl"
 
 	antlr_v4 "github.com/antlr4-go/antlr/v4"
 )
