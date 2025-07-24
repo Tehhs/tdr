@@ -156,10 +156,6 @@ func ProcessFile(path string) []TodoBlock {
 
 func main() {
 
-	log.Println("test")
-
-	return 
-	
 	args := ParseArguments()
 
 	fileOrFolderInfo, err := os.Stat(*args.Path)
