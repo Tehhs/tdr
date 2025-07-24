@@ -1,4 +1,4 @@
-// Code generated from tool/pkg/tdrl/grammar/tdrl.g4 by ANTLR 4.13.1. DO NOT EDIT.
+// Code generated from pkg/tdrl/grammar/tdrl.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package tdrl
 import (
