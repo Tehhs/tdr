@@ -134,10 +134,17 @@ func ProcessFile(path string) []TodoBlock {
 		log.Panicf("File '%s' could not be read.", path)
 	}
 
+	//todo(refactor): Comments layer should return comment layer errors, and 
+	//have a special file extension not supported error to check for here
+	//instead of just ingoring.
 	parseResult, err := comments.Parse(Ptr(string(content)), *extension)
 
 	if err != nil {
-		log.Panic("Error parsing")
+		// log.Panic("Error parsing")
+	}
+
+	if parseResult == nil || parseResult.Comments == nil {
+		return todoCommentBlocks
 	}
 
 	for _, commentBlock := range parseResult.Comments {

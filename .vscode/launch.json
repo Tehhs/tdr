@@ -17,7 +17,7 @@
             "mode": "debug",
             "program": "${workspaceFolder}/tool",
             // "console": "integratedTerminal",
-            "args": ["-f", "main.go", "-l"]
+            // "args": ["-f", "main.go", "-l"]
         },
         // {
         //     "name": "Attach to Process",
