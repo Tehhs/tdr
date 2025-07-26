@@ -10,19 +10,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Tehhs/tdr/pkg/comments"
-	"github.com/Tehhs/tdr/pkg/util"
+	"github.com/Tehhs/tdr/pkg/core"
 	"github.com/Tehhs/tdr/pkg/tdrl"
 )
 
-type TodoBlock struct {
-	CommentBlock *comments.CommentBlock
-	FileName     string
-}
 
-
-type ProcessedTag struct {
-}
 
 type ProcessArguments struct {
 	List      *bool
@@ -42,48 +34,10 @@ func ParseArguments() ProcessArguments {
 	return processArguments
 }
 
-func ProcessFile(path string) []TodoBlock {
-
-	var todoCommentBlocks []TodoBlock = []TodoBlock{}
-
-	var extension *string = nil
-	filePathParts := strings.Split(path, ".")
-	extension = util.Ptr(filePathParts[len(filePathParts)-1])
-
-	content, err := os.ReadFile(path)
-	if err != nil {
-		log.Panicf("File '%s' could not be read.", path)
-	}
-
-	//todo(refactor): Comments layer should return comment layer errors, and 
-	//have a special file extension not supported error to check for here
-	//instead of just ingoring.
-	parseResult, err := comments.Parse(Ptr(string(content)), *extension)
-
-	if err != nil {
-		// log.Panic("Error parsing")
-	}
-
-	if parseResult == nil || parseResult.Comments == nil {
-		return todoCommentBlocks
-	}
-
-	for _, commentBlock := range parseResult.Comments {
-		hasTodo := strings.Contains(strings.ToLower(commentBlock.String()), "todo")
-		if hasTodo {
-			todoCommentBlocks = append(todoCommentBlocks, TodoBlock{
-				CommentBlock: commentBlock,
-				FileName:     path,
-			})
-		}
-	}
-
-	return todoCommentBlocks
-
-}
 
 
 func main() {
+	coreInstance := core.NewTDRCore()
 	tdrlParser := tdrl.NewParser()
 	args := ParseArguments()
 
@@ -92,10 +46,10 @@ func main() {
 		log.Panicf("File or folder '%s' is not a file or folder.\n", *args.Path)
 	}
 
-	var todoCommentBlocks []TodoBlock = []TodoBlock{}
+	var todoCommentBlocks []core.TodoBlock = []core.TodoBlock{}
 
 	if !fileOrFolderInfo.IsDir() {
-		newBlocks := ProcessFile(*args.Path)
+		newBlocks := coreInstance.ProcessFile(*args.Path)
 		todoCommentBlocks = append(todoCommentBlocks, newBlocks...)
 	} else {
 		filepath.Walk(*args.Path, func(path string, info fs.FileInfo, err error) error {
@@ -103,7 +57,7 @@ func main() {
 			if info.IsDir() {
 				return nil
 			}
-			newBlocks := ProcessFile(path)
+			newBlocks := coreInstance.ProcessFile(path)
 			todoCommentBlocks = append(todoCommentBlocks, newBlocks...)
 
 			return nil
