@@ -14,3 +14,8 @@ generate:
 		-o pkg/tdrl \
 		-package tdrl \
 		pkg/tdrl/grammar/tdrl.g4 
+
+
+.PHONY: test
+test:
+	go test ./...

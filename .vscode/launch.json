@@ -1,15 +1,6 @@
 {
     "version": "0.2.0",
     "configurations": [
-        // {
-        //     "name": "Launch Package",
-        //     "type": "go",
-        //     "request": "launch",
-        //     "mode": "auto",
-        //     "program": "${workspaceFolder}/tool",
-        //     "console": "integratedTerminal",
-        //     "args": []
-        // },
         {
             "name": "Debug Package",
             "type": "go",
@@ -20,11 +11,15 @@
             // "args": ["-f", "main.go", "-l"]
         },
         // {
-        //     "name": "Attach to Process",
+        //     "name": "Test all",
         //     "type": "go",
-        //     "request": "attach",
-        //     "mode": "local",
-        //     "processId": "${command:pickProcess}"
-        // }
+        //     "request": "launch",
+        //     "mode": "test",
+        //     "program": "${workspaceFolder}",
+        //     "args": [
+        //         "./..."
+        //     ],
+        //     "showLog": true,
+        // },
     ]
 }
