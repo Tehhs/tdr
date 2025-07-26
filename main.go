@@ -1,11 +1,6 @@
 package main
 
 import (
-	// "flag"
-	// "fmt"
-	// "io/fs"
-	// "log"
-	// "os"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -17,12 +12,7 @@ import (
 
 	"github.com/Tehhs/tdr/pkg/comments"
 	"github.com/Tehhs/tdr/pkg/util"
-
-	// "path/filepath"
-	// "strings"
 	"github.com/Tehhs/tdr/pkg/tdrl"
-
-	antlr_v4 "github.com/antlr4-go/antlr/v4"
 )
 
 type TodoBlock struct {
@@ -30,78 +20,8 @@ type TodoBlock struct {
 	FileName     string
 }
 
-type TodoListener struct {
-	tdrl.BasetdrlListener
-	OnFindTodo *func(tags []string, content string)
-}
-
-func (s *TodoListener) EnterTodoRule(ctx *tdrl.TodoRuleContext) {
-	var amountOfTags int = 0
-	if ctx.TagRule() != nil && ctx.TagRule().TagList().GetChildCount() != 0 {
-		amountOfTags = (ctx.TagRule().TagList().GetChildCount() + 1) / 2
-	}
-
-	tags := []string{}
-	for i := range amountOfTags {
-		tags = append(tags, ctx.TagRule().TagList().TAG_ID(i).GetText())
-
-	}
-
-	var contentParts []string = []string{}
-	if ctx.MessageContent() != nil {
-		for partIndex := range ctx.MessageContent().GetChildCount() {
-			contentParts = append(contentParts, fmt.Sprint(ctx.MessageContent().GetChild(partIndex)))
-		}
-
-	}
-
-	if s.OnFindTodo != nil {
-		var f func(tags []string, content string)
-		f = *s.OnFindTodo
-		f(tags, strings.Join(contentParts, " "))
-	}
-}
 
 type ProcessedTag struct {
-}
-type ProcessedTodo struct {
-	Tags             []string
-	ProcessedContent string
-}
-
-func (t ProcessedTodo) HasTag(checkTag string) bool {
-	for _, tag := range t.Tags {
-		if strings.ToLower(tag) == strings.ToLower(checkTag) {
-			return true
-		}
-	}
-	return false
-}
-
-func ProcessTodo(content string) []ProcessedTodo {
-	charStream := antlr_v4.NewInputStream(content)
-	lexer := tdrl.NewtdrlLexer(charStream)
-	lexer.RemoveErrorListeners()
-
-	tokens := antlr_v4.NewCommonTokenStream(lexer, antlr_v4.TokenDefaultChannel)
-	parser := tdrl.NewtdrlParser(tokens)
-	parser.RemoveErrorListeners()
-
-	tree := parser.Main()
-
-	processedTodos := []ProcessedTodo{}
-
-	listener := &TodoListener{}
-	onFindTodo := func(tags []string, content string) {
-		processedTodos = append(processedTodos, ProcessedTodo{
-			Tags:             tags,
-			ProcessedContent: content,
-		})
-	}
-	listener.OnFindTodo = &onFindTodo
-	antlr_v4.ParseTreeWalkerDefault.Walk(listener, tree)
-
-	return processedTodos
 }
 
 type ProcessArguments struct {
@@ -162,8 +82,9 @@ func ProcessFile(path string) []TodoBlock {
 
 }
 
-func main() {
 
+func main() {
+	tdrlParser := tdrl.NewParser()
 	args := ParseArguments()
 
 	fileOrFolderInfo, err := os.Stat(*args.Path)
@@ -200,7 +121,7 @@ func main() {
 
 		todoContent = strings.ToLower(todoContent)
 
-		processedTodos := ProcessTodo(todoContent)
+		processedTodos := tdrlParser.ProcessTodo(todoContent)
 
 		//i know this is a code smell and a half will refactor later :P
 		if *args.List {
