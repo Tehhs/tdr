@@ -34,8 +34,9 @@ And then query your tags by doing something like `tdr -t security` or `tdr -t im
 
 # Supporpted Lanauges 
 * Golang
-* (WIP) Javascript & JSX
+* Javascript (including JSX)
 * (WIP) Typescript & TSX
+* (WIP) C#
 
 # Building 
 
