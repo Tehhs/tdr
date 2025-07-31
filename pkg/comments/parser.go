@@ -39,6 +39,7 @@ type Parser interface {
 
 var parsers []Parser = []Parser{
 	GoParser{},
+	JavascriptParser{},
 }
 
 func Parse(content *string, extension string) (*ParseResult, error) {
