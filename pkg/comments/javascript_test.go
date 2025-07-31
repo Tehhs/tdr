@@ -5,19 +5,20 @@ import (
 	"testing"
 )
 
-func TestBasicGolangComments(t *testing.T) { 
+func TestBasicJavascriptComments(t *testing.T) { 
 	
 	var content string = `
-package test
 
-func SomeFunction(str *string) { 
-	var number int = 2
-	//todo(test): this comment should be picked up
-}
+
+	;(()=>{
+		const a = "test"
+		//todo(test): this comment should be picked up
+	})();
+
 
 	`
 	
-	parseResult, err := Parse(&content, "go")
+	parseResult, err := Parse(&content, "js")
 
 	if err != nil { 
 		t.Errorf("Failed to parse %v", err)
@@ -35,14 +36,13 @@ func SomeFunction(str *string) {
 
 
 
-func TestMultipleGolangComments(t *testing.T) { 
+func TestMultipleJavascriptComments(t *testing.T) { 
 	
 	var content string = `
-package test
 
-func SomeFunction(str *string) { 
+function f(){ 
 	//todo: this is another comment that should be picked up
-	var number int = 2
+	const number = 2
 	//todo(test): this comment should be picked up
 }
 
@@ -65,13 +65,12 @@ func SomeFunction(str *string) {
 }
 
 
-func TestSequentialGolangLineComments(t *testing.T) { 
+func TestSequentialLineJavascriptComments(t *testing.T) { 
 	
 	var content string = `
-package test
 
-func SomeFunction(str *string) { 
-	var number int = 2
+function SomeFunction() { 
+	const number = 2
 	//todo(test): this comment should be picked up
 	//and this should also be in the same comment block TESTFORTHISSTRING
 }
@@ -98,4 +97,6 @@ func SomeFunction(str *string) {
 	}
 
 }
+
+//todo(testing): add jsx tests
 

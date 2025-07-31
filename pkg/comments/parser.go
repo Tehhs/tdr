@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 )
-
+//todo(refactor): most tree sitter parsers are all the same you should make a util func for that instead of copy pasta
 type Line struct {
 	Content    string
 	LineNumber int
@@ -39,6 +39,7 @@ type Parser interface {
 
 var parsers []Parser = []Parser{
 	GoParser{},
+	JavascriptParser{},
 }
 
 func Parse(content *string, extension string) (*ParseResult, error) {
