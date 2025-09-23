@@ -3,7 +3,12 @@ package comments
 import (
 	"errors"
 	"log"
+
+	tree_sitter "github.com/tree-sitter/go-tree-sitter"
+	tree_sitter_go "github.com/tree-sitter/tree-sitter-go/bindings/go"
+	tree_sitter_js "github.com/tree-sitter/tree-sitter-javascript/bindings/go"
 )
+
 //todo(refactor): most tree sitter parsers are all the same you should make a util func for that instead of copy pasta
 type Line struct {
 	Content    string
@@ -37,9 +42,19 @@ type Parser interface {
 	ShouldParseFile(extension string) bool
 }
 
+func ParserFromTreeSitter() { 
+	
+}
+
 var parsers []Parser = []Parser{
-	GoParser{},
-	JavascriptParser{},
+	TreeSitterParser{
+		Language: tree_sitter.NewLanguage(tree_sitter_go.Language()),
+		IsLanguageFile: Extensions("go"),
+	},
+	TreeSitterParser{
+		Language: tree_sitter.NewLanguage(tree_sitter_js.Language()),
+		IsLanguageFile: Extensions("js"),
+	},
 }
 
 func Parse(content *string, extension string) (*ParseResult, error) {
@@ -55,3 +70,5 @@ func Parse(content *string, extension string) (*ParseResult, error) {
 	}
 	return nil, errors.New("no supported parser found")
 }
+
+

@@ -3,25 +3,49 @@ package comments
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 
 	tree_sitter "github.com/tree-sitter/go-tree-sitter"
-	tree_sitter_js "github.com/tree-sitter/tree-sitter-javascript/bindings/go"
 )
 
+type IsLanguageFileFunction func(ext string) bool
 
-type JavascriptParser struct {
+type TreeSitterParser struct {
 	Parser
+	Language *tree_sitter.Language
+	IsLanguageFile IsLanguageFileFunction
 }
 
-func (p JavascriptParser) Parse(content *string) (*ParseResult, error) {
+func Extensions(exts... string) IsLanguageFileFunction { 
+	return func(ext string) bool { 
+		ext = strings.ToLower(ext)
+		ext = strings.TrimSpace(ext)
+		for _, e := range exts { 
+			e = strings.ToLower(e)
+			e = strings.TrimSpace(e)
+			if e == ext { 
+				return true 
+			}
+		}
+		return false
+	}
+}
+
+func (p TreeSitterParser) Parse(content *string) (*ParseResult, error) {
+
+	if p.Language == nil { 
+		log.Panic("no language set up for this tree sitter parser")
+	}
+
+
 	if content == nil {
 		return nil, errors.New("content is nil")
 	}
 	parser := tree_sitter.NewParser()
 	defer parser.Close()
 
-	parser.SetLanguage(tree_sitter.NewLanguage(tree_sitter_js.Language()))
+	parser.SetLanguage(p.Language)
 	tree := parser.Parse([]byte(*content), nil)
 	defer tree.Close()
 
@@ -42,20 +66,20 @@ func (p JavascriptParser) Parse(content *string) (*ParseResult, error) {
 		if line == lastLine+1 {
 			commentBlock.Lines = append(commentBlock.Lines, Line{
 				Content:    content,
-				LineNumber: line+1,
+				LineNumber: line + 1,
 			})
-			commentBlock.EndLine = line+1
+			commentBlock.EndLine = line + 1
 			lastLine = line
 			return
 		}
 
 		commentBlock = &CommentBlock{}
 		parseResult.Comments = append(parseResult.Comments, commentBlock)
-		commentBlock.StartLine = line+1
-		commentBlock.EndLine = line+1
+		commentBlock.StartLine = line + 1
+		commentBlock.EndLine = line + 1
 		commentBlock.Lines = append(commentBlock.Lines, Line{
 			Content:    content,
-			LineNumber: line+1,
+			LineNumber: line + 1,
 		})
 		lastLine = line
 
@@ -124,6 +148,10 @@ func (p JavascriptParser) Parse(content *string) (*ParseResult, error) {
 
 }
 
-func (p JavascriptParser) ShouldParseFile(extension string) bool {
-	return extension == "js"
+
+func (p TreeSitterParser) ShouldParseFile(extension string) bool { 
+	if p.IsLanguageFile == nil { 
+		return false 
+	}
+	return p.IsLanguageFile(extension)
 }
