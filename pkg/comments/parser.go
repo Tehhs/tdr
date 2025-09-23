@@ -53,24 +53,27 @@ var parsers []Parser = []Parser{
 	TreeSitterParser{
 		Language: tree_sitter.NewLanguage(tree_sitter_go.Language()),
 		IsLanguageFile: Extensions("go"),
+		Strip: StripPrescedingSlashes(), //todo: account for multiline
 	},
 	TreeSitterParser{
 		Language: tree_sitter.NewLanguage(tree_sitter_js.Language()),
 		IsLanguageFile: Extensions("js"),
+		Strip: StripPrescedingSlashes(), //todo: account for multiline
 	},
 	TreeSitterParser{
 		Language: tree_sitter.NewLanguage(tree_sitter_ts.LanguageTypescript()),
 		IsLanguageFile: Extensions("ts"),
+		Strip: StripPrescedingSlashes(), //todo: account for multiline
 	},
 	TreeSitterParser{
 		Language: tree_sitter.NewLanguage(tree_sitter_csharp.Language()),
 		IsLanguageFile: Extensions("cs"),
+		Strip: StripPrescedingSlashes(), //todo: account for multiline
 	},
 	TreeSitterParser{
 		Language: tree_sitter.NewLanguage(tree_sitter_bash.Language()),
 		IsLanguageFile: Extensions("sh"),
-		//Not sure about this. Like comment below, might need to control comment stripping
-		//As bash requires stripping the #
+		Strip: StripPrescedingCharacters("#"),
 	},
 	// TSX (and jsx) will invole controlling how comments are parsed more than just stripping out the 
 	// beginning '//'

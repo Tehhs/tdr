@@ -10,34 +10,69 @@ import (
 )
 
 type IsLanguageFileFunction func(ext string) bool
+type CommentStripperFunction func(comment string) string
 
 type TreeSitterParser struct {
 	Parser
-	Language *tree_sitter.Language
+	Language       *tree_sitter.Language
 	IsLanguageFile IsLanguageFileFunction
+	Strip          CommentStripperFunction
 }
 
-func Extensions(exts... string) IsLanguageFileFunction { 
-	return func(ext string) bool { 
+func Extensions(exts ...string) IsLanguageFileFunction {
+	return func(ext string) bool {
 		ext = strings.ToLower(ext)
 		ext = strings.TrimSpace(ext)
-		for _, e := range exts { 
+		for _, e := range exts {
 			e = strings.ToLower(e)
 			e = strings.TrimSpace(e)
-			if e == ext { 
-				return true 
+			if e == ext {
+				return true
 			}
 		}
 		return false
 	}
 }
 
+func StripPrescedingSlashes() CommentStripperFunction {
+	return StripPrescedingCharacters("//")
+	// return func(comment string) string {
+	// 	comment = strings.TrimSpace(comment)
+	// 	if comment[0:2] == "//" {
+	// 		comment = comment[2:]
+	// 	} else {
+	// 		comment = comment[2:]
+	// 		comment = comment[:len(comment)-2]
+	// 	}
+	// 	return comment
+	// }
+}
+
+func StripPrescedingCharacters(prescedingCharacters string) CommentStripperFunction {
+	return func(comment string) string {
+		comment = strings.TrimSpace(comment)
+		if comment[0:len(prescedingCharacters)] == prescedingCharacters {
+			comment = comment[len(prescedingCharacters):]
+		} else {
+			comment = comment[len(prescedingCharacters):]
+			comment = comment[:len(comment)-len(prescedingCharacters)]
+		}
+		return comment
+	}
+}
+
 func (p TreeSitterParser) Parse(content *string) (*ParseResult, error) {
 
-	if p.Language == nil { 
+	if p.Language == nil {
 		log.Panic("no language set up for this tree sitter parser")
 	}
-
+	var stripFunction CommentStripperFunction = nil
+	if p.Strip != nil {
+		stripFunction = p.Strip
+	} else {
+		// stripFunction = StripPrescedingSlashes
+		panic("does not have strip function")
+	}
 
 	if content == nil {
 		return nil, errors.New("content is nil")
@@ -90,15 +125,7 @@ func (p TreeSitterParser) Parse(content *string) (*ParseResult, error) {
 		stringContent := string(node.Utf8Text([]byte(*content)))
 		stringContent = strings.TrimSpace(stringContent)
 
-		if stringContent[0:2] == "//" {
-			stringContent = stringContent[2:]
-		} else {
-			stringContent = stringContent[2:]
-			stringContent = stringContent[:len(stringContent)-2]
-		}
-		// fmt.Println(node.)
-		// fmt.Println(string(node.Utf8Text(code)))
-		// fmt.Println(node.EndPosition().Row)
+		stringContent = stripFunction(stringContent)
 
 		line := node.EndPosition().Row
 
@@ -148,10 +175,9 @@ func (p TreeSitterParser) Parse(content *string) (*ParseResult, error) {
 
 }
 
-
-func (p TreeSitterParser) ShouldParseFile(extension string) bool { 
-	if p.IsLanguageFile == nil { 
-		return false 
+func (p TreeSitterParser) ShouldParseFile(extension string) bool {
+	if p.IsLanguageFile == nil {
+		return false
 	}
 	return p.IsLanguageFile(extension)
 }
