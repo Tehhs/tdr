@@ -6,7 +6,12 @@ toolchain go1.24.3
 
 require github.com/antlr4-go/antlr/v4 v4.13.1
 
-require github.com/tree-sitter/tree-sitter-javascript v0.23.1 // indirect
+require (
+	github.com/tree-sitter/tree-sitter-bash v0.25.0 // indirect
+	github.com/tree-sitter/tree-sitter-c-sharp v0.23.1 // indirect
+	github.com/tree-sitter/tree-sitter-javascript v0.23.1 // indirect
+	github.com/tree-sitter/tree-sitter-typescript v0.23.2 // indirect
+)
 
 require (
 	github.com/mattn/go-pointer v0.0.1 // indirect
