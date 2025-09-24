@@ -34,16 +34,6 @@ And then query your tags by doing something like `tdr -t security` or `tdr -t im
 
 # Supporpted Lanauges 
 * Golang
-* Javascript (including JSX)
-* (WIP) Typescript & TSX
-* (WIP) C#
+* Javascript, Typescript
+* CSharp
 
-# Building 
-
-### Prerequisites
-* Golang 1.23 (To be dockersized and removed as a requirement)
-* docker
-* docker compose
-* make installed
-
-Then you should be able to run `make build` to build, which should output to `dist/` folder. 
