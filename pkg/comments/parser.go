@@ -3,8 +3,16 @@ package comments
 import (
 	"errors"
 	"log"
+
+	tree_sitter "github.com/tree-sitter/go-tree-sitter"
+	tree_sitter_go "github.com/tree-sitter/tree-sitter-go/bindings/go"
+	tree_sitter_js "github.com/tree-sitter/tree-sitter-javascript/bindings/go"
+	tree_sitter_ts "github.com/tree-sitter/tree-sitter-typescript/bindings/go"
+	tree_sitter_csharp "github.com/tree-sitter/tree-sitter-c-sharp/bindings/go"
+	tree_sitter_bash "github.com/tree-sitter/tree-sitter-bash/bindings/go"
 )
 
+//todo(refactor): most tree sitter parsers are all the same you should make a util func for that instead of copy pasta
 type Line struct {
 	Content    string
 	LineNumber int
@@ -37,8 +45,43 @@ type Parser interface {
 	ShouldParseFile(extension string) bool
 }
 
+func ParserFromTreeSitter() { 
+	
+}
+
 var parsers []Parser = []Parser{
-	GoParser{},
+	TreeSitterParser{
+		Language: tree_sitter.NewLanguage(tree_sitter_go.Language()),
+		IsLanguageFile: Extensions("go"),
+		Strip: StripPrescedingSlashes(), //todo: account for multiline
+	},
+	TreeSitterParser{
+		Language: tree_sitter.NewLanguage(tree_sitter_js.Language()),
+		IsLanguageFile: Extensions("js"),
+		Strip: StripPrescedingSlashes(), //todo: account for multiline
+	},
+	TreeSitterParser{
+		Language: tree_sitter.NewLanguage(tree_sitter_ts.LanguageTypescript()),
+		IsLanguageFile: Extensions("ts"),
+		Strip: StripPrescedingSlashes(), //todo: account for multiline
+	},
+	TreeSitterParser{
+		Language: tree_sitter.NewLanguage(tree_sitter_csharp.Language()),
+		IsLanguageFile: Extensions("cs"),
+		Strip: StripPrescedingSlashes(), //todo: account for multiline
+	},
+	TreeSitterParser{
+		Language: tree_sitter.NewLanguage(tree_sitter_bash.Language()),
+		IsLanguageFile: Extensions("sh"),
+		Strip: StripPrescedingCharacters("#"),
+	},
+	// TSX (and jsx) will invole controlling how comments are parsed more than just stripping out the 
+	// beginning '//'
+	//
+	// TreeSitterParser{
+	// 	Language: tree_sitter.NewLanguage(tree_sitter_ts.LanguageTypescript()),
+	// 	IsLanguageFile: Extensions("tsx"),
+	// },
 }
 
 func Parse(content *string, extension string) (*ParseResult, error) {
@@ -54,3 +97,5 @@ func Parse(content *string, extension string) (*ParseResult, error) {
 	}
 	return nil, errors.New("no supported parser found")
 }
+
+
