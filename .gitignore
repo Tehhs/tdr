@@ -61,3 +61,5 @@ dist/*
 __debug_bin*
 
 .swp
+
+.vscode
