@@ -1,8 +1,10 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -14,8 +16,8 @@ import (
 type TDRCore struct {
 }
 
-func NewTDRCore() TDRCore {
-	return TDRCore{}
+func NewTDRCore() *TDRCore {
+	return &TDRCore{}
 }
 
 // todo(refactor): not sure if this should be here
@@ -41,7 +43,7 @@ type ContentType struct {
 }
 
 func (c TDRCore) getTodosFromContent(content ContentType) (*[]TodoBlock, error) {
-	if content.Content == nil { 
+	if content.Content == nil {
 		return nil, fmt.Errorf("cannot process todo content with no actual content")
 	}
 
@@ -83,7 +85,10 @@ func (c TDRCore) getTodosCommentsFromFileOrDirectory(fileOrFolder string) (*[]To
 		return nil, fmt.Errorf("could not get stats of file or folder %s", fileOrFolder)
 	}
 	if fileOrFolderInfo.IsDir() {
-		panic("unimplemented") //todo(unimplemented): unimplemented
+		slog.Error("unimplemented")
+		return nil, errors.New("unimplemented")
+		// panic("unimplemented") //todo(unimplemented): unimplemented
+		//todo(unimplemented): need to implement this 
 	}
 
 	if !fileOrFolderInfo.IsDir() {
@@ -91,8 +96,8 @@ func (c TDRCore) getTodosCommentsFromFileOrDirectory(fileOrFolder string) (*[]To
 		if err != nil {
 			return nil, fmt.Errorf("could not read file %s", fileOrFolder)
 		}
-		
-		if !strings.Contains(fileOrFolder, ".") { 
+
+		if !strings.Contains(fileOrFolder, ".") {
 			return nil, fmt.Errorf("file %s does not have a type", fileOrFolder)
 		}
 		filenameSegments := strings.Split(fileOrFolder, ".")
@@ -110,33 +115,36 @@ func (c TDRCore) getTodosCommentsFromFileOrDirectory(fileOrFolder string) (*[]To
 	panic("unimplemented")
 }
 
-type ProcessedNamedContent struct { 
-	Name *string 
+type ProcessedNamedContent struct {
+	//Named content. Usually a filename.
+	Name *string
+
+	//List of processed todos.
 	Processed []tdrl.TDRLTodo
 }
 
-type ProcessOutput struct { 
-	Todos []ProcessedNamedContent
+type ProcessOutput struct {
+	Todos []ProcessedNamedContent //todo(performance): make pointer
 }
 
-func (c TDRCore) Process(fileOrFolder string) (ProcessOutput, error) { 
+func (c TDRCore) Process(fileOrFolder string) (ProcessOutput, error) {
 	tdrlParser := tdrl.NewParser()
-	
+
 	todoCommentBlocks, err := c.getTodosCommentsFromFileOrDirectory(fileOrFolder)
-	if err != nil || todoCommentBlocks == nil { 
+	if err != nil || todoCommentBlocks == nil {
 		return ProcessOutput{}, err
 	}
 
 	processedTodoOutput := []ProcessedNamedContent{}
 
-	for _, todoCommentBlock := range *todoCommentBlocks { 
-		
+	for _, todoCommentBlock := range *todoCommentBlocks {
+
 		if todoCommentBlock.CommentBlock == nil {
 			//todo(refactor): Not sure if this should happen. Need to check and possibly refactor
 			log.Print("Warning: comment block is nil\n")
-			continue 
+			continue
 		}
-		
+
 		todoLines := []string{}
 		for _, line := range todoCommentBlock.CommentBlock.Lines {
 			todoLines = append(todoLines, line.String())
@@ -146,13 +154,13 @@ func (c TDRCore) Process(fileOrFolder string) (ProcessOutput, error) {
 
 		processedTodos := tdrlParser.ProcessTodo(todoContent)
 		processedTodoOutput = append(processedTodoOutput, ProcessedNamedContent{
-			Name: todoCommentBlock.RawContent.ContentName, //todo(ptr): possible nil ptr deref
+			Name:      todoCommentBlock.RawContent.ContentName, //todo(ptr): possible nil ptr deref
 			Processed: processedTodos,
 		})
-		
+
 	}
 
 	return ProcessOutput{
 		Todos: processedTodoOutput,
-	}, nil 
+	}, nil
 }

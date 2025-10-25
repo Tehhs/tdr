@@ -6,7 +6,6 @@ import (
 
 	components "github.com/Tehhs/tdr/pkg/cli/components"
 	"github.com/Tehhs/tdr/pkg/core"
-	"github.com/Tehhs/tdr/pkg/util"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/charmbracelet/lipgloss"
@@ -19,9 +18,20 @@ type TdrCli struct {
 type NewCLIParams struct {
 }
 
+type ScreenState int
+
 const (
-	screenTags = iota
+	screenTags ScreenState = iota
 	screenTodos
+)
+
+type ScanState int
+
+const (
+	ScanInProgress ScanState = iota
+	ScanFinished
+	ScanErrored
+	ScanHasntScanned
 )
 
 type BubbleTeaModel struct {
@@ -29,42 +39,48 @@ type BubbleTeaModel struct {
 	HeaderModel  components.HeaderModel
 	TagsModel    components.TagsModel
 	TodoModel    components.TodoModel
-	ViewState    int
+
+	ViewState              ScreenState
+	TDRCore                *core.TDRCore
+	DisplayLoadingPage     bool
+	IsLoading              bool
+	ProcessedNamedContenet *[]core.ProcessedNamedContent
 }
 
 func initialModel() BubbleTeaModel {
+
+	coreInstance := core.NewTDRCore()
+	// processOutput, err := coreInstance.Process("./main.go")
+
 	return BubbleTeaModel{
-		FileOrFolder: util.Ptr("examplefile.txt"),
-		TagsModel:    components.NewTagsModel(),
-		TodoModel:    components.NewTodoModel(),
-		HeaderModel:  components.NewHeaderModel(),
+		TagsModel:          components.NewTagsModel(),
+		TodoModel:          components.NewTodoModel(),
+		HeaderModel:        components.NewHeaderModel(),
+		TDRCore:            coreInstance,
+		DisplayLoadingPage: true,
+		IsLoading:          true,
 	}
 }
 
 func (btm BubbleTeaModel) Init() tea.Cmd {
-	return nil
+	return scanCmd(btm.TDRCore, "/")
 }
 
 func (m BubbleTeaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:
+		return m.update_keyMsg(msg)
 
-		switch msg.String() {
+	case ScanRequest:
+		return m.update_scanRequest(msg)
 
-		// These keys should exit the program.
-		case "ctrl+c", "q":
-			return m, tea.Quit
+	case ScannedMsg:
+		return m.update_scannedMessage(msg)
 
-		//switch views
-		case "up", "down", "s":
-			if m.ViewState == screenTags {
-				m.ViewState = screenTodos
-			} else {
-				m.ViewState = screenTags
-			}
-		}
-
+	// default:
+		// there can be other bubble tea events so dont emit errors here
+		// slog.Error("unknown update message")
 	}
 
 	// Return the updated model to the Bubble Tea runtime for processing.
@@ -90,7 +106,6 @@ func (m BubbleTeaModel) View() string {
 
 	// The footer
 	footer := "\n\n[q - Quit] [s switch views]"
-
 
 	finalView := lipgloss.JoinVertical(
 		lipgloss.Left,
