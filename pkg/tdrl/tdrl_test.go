@@ -1,6 +1,7 @@
 package tdrl
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/Tehhs/tdr/pkg/util"
@@ -15,6 +16,39 @@ func Test_BasicTodos(t *testing.T) {
 		t.Error("could not process todos")
 	}
 
+}
+
+func Test_ProcessedText(t *testing.T) {
+	p := NewParser()
+
+	//Simple 
+
+	text := "this should work"
+	todos := p.ProcessTodo(fmt.Sprintf("todo: %s", text))
+
+	if len(todos) != 1 {
+		t.Error("returned no todos or invalid amount of todos")
+	}
+
+	todo := todos[0]
+
+	if todo.ProcessedContent != text {
+		t.Errorf("Failed to process content. Got '%s', wanted '%s'", todo.ProcessedContent, text)
+	}
+
+	//Probably want to add more test for if there's no leading space like "todo:this should work" returning "this should work"
+
+	//todo(test): Need to make sure processed text works with tags too 
+}
+
+func Test_WithoutTags(t *testing.T) {
+	p := NewParser()
+	text := "this should work"
+	todos := p.ProcessTodo(fmt.Sprintf("todo: %s", text))
+
+	if len(todos) != 1 {
+		t.Error("returned no todos or invalid amount of todos")
+	}
 }
 
 func Test_Tags(t *testing.T) {
